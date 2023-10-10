@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useContext } from 'react';
+import React, { useState, useEffect, useReducer, useContext, useRef } from 'react';
 
 import Card from '../UI/Card/Card';
 import classes from './Login.module.css';
@@ -55,6 +55,9 @@ const Login = (props) => {
   const {isValid: passwordIsValid} = passwordState;
   const {isValid: collegeIsValid} = collegeState;
 
+  const emailInputRef = useRef();
+  const passwordInputRef = useRef();
+  const collegeInputRef = useRef();
 
   useEffect(()=>{
     const identifier = setTimeout(()=>{
@@ -113,17 +116,25 @@ const Login = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    authCtx.onLogin(emailState.value, passwordState.value, collegeState.value);
+    if(formIsValid){
+      authCtx.onLogin(emailState.value, passwordState.value, collegeState.value);
+    }else if(!emailIsValid){
+      emailInputRef.current.focus();
+    }else if(!passwordIsValid){
+      passwordInputRef.current.focus();
+    }else{
+      collegeInputRef.current.focus();
+    }
   };
 
   return (
     <Card className={classes.login}>
       <form onSubmit={submitHandler}>
-        <Input id="email" label="E-Mail" type="email" isValid={emailIsValid} value={emailState.value} onChange={emailChangeHandler} onBlur={validateEmailHandler} />
-        <Input id="password" label="Password" type="password" isValid={passwordIsValid} value={passwordState.value} onChange={passwordChangeHandler} onBlur={validatePasswordHandler} />
-        <Input id="college" label="College Name" type="text" isValid={collegeIsValid} value={collegeState.value} onChange={collegeNameChangeHandler} onBlur={validateCollegeHandler} />
+        <Input ref={emailInputRef} id="email" label="E-Mail" type="email" isValid={emailIsValid} value={emailState.value} onChange={emailChangeHandler} onBlur={validateEmailHandler} />
+        <Input ref={passwordInputRef} id="password" label="Password" type="password" isValid={passwordIsValid} value={passwordState.value} onChange={passwordChangeHandler} onBlur={validatePasswordHandler} />
+        <Input ref={collegeInputRef} id="college" label="College Name" type="text" isValid={collegeIsValid} value={collegeState.value} onChange={collegeNameChangeHandler} onBlur={validateCollegeHandler} />
         <div className={classes.actions}>
-          <Button type="submit" className={classes.btn} disabled={!formIsValid}>
+          <Button type="submit" className={classes.btn}>
             Login
           </Button>
         </div>
